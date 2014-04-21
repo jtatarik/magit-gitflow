@@ -200,29 +200,43 @@
   (magit-key-mode-insert-switch 'gitflow-feature-delete "-r" "Delete remote" "--remote")
   (magit-key-mode-generate 'gitflow-feature-delete)
 
-  
-  )
+  (magit-key-mode-add-group 'gitflow-feature)
+  (magit-key-mode-insert-action 'gitflow-feature "s" "Start" 'magit-key-mode-popup-gitflow-feature-start)
+  (magit-key-mode-insert-action 'gitflow-feature "f" "Finish" 'magit-key-mode-popup-gitflow-feature-start)
+  (magit-key-mode-insert-action 'gitflow-feature "p" "Publish" 'magit-key-mode-popup-gitflow-feature-publish)
+  (magit-key-mode-insert-action 'gitflow-feature "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
+  (magit-key-mode-generate 'gitflow-feature)
 
+  (magit-key-mode-add-group 'gitflow-release-start)
+  (magit-key-mode-insert-action 'gitflow-release-start "s" "Start" 'magit-gitflow-release-start)
+  (magit-key-mode-generate 'gitflow-release-start)
 
+  (magit-key-mode-add-group 'gitflow-release-finish)
+  (magit-key-mode-insert-action 'gitflow-release-finish "f" "Finish" 'magit-gitflow-release-finish)
+  (magit-key-mode-generate 'gitflow-release-finish)
 
-(defvar magit-gitflow-feature-keymap (make-sparse-keymap))
-(define-key magit-gitflow-feature-keymap (kbd "s") 'magit-key-mode-popup-gitflow-feature-start)
-(define-key magit-gitflow-feature-keymap (kbd "f") 'magit-key-mode-popup-gitflow-feature-finish)
-(define-key magit-gitflow-feature-keymap (kbd "p") 'magit-key-mode-popup-gitflow-feature-publish)
-(define-key magit-gitflow-feature-keymap (kbd "d") 'magit-key-mode-popup-gitflow-feature-delete)
+  (magit-key-mode-add-group 'gitflow-release-publish)
+  (magit-key-mode-insert-action 'gitflow-release-publish "p" "Publish" 'magit-gitflow-release-publish)
+  (magit-key-mode-generate 'gitflow-release-publish)
 
-(defvar magit-gitflow-release-keymap (make-sparse-keymap))
-(define-key magit-gitflow-release-keymap (kbd "s") 'magit-gitflow-release-start)
-(define-key magit-gitflow-release-keymap (kbd "f") 'magit-gitflow-release-finish)
-(define-key magit-gitflow-release-keymap (kbd "p") 'magit-gitflow-release-publish)
-(define-key magit-gitflow-release-keymap (kbd "d") 'magit-gitflow-release-delete)
+  (magit-key-mode-add-group 'gitflow-release-delete)
+  (magit-key-mode-insert-action 'gitflow-release-delete "d" "Delete" 'magit-gitflow-release-delete)
+  (magit-key-mode-generate 'gitflow-release-delete)
 
-(defvar magit-gitflow-keymap (make-sparse-keymap))
-(define-key magit-gitflow-keymap (kbd "i") 'magit-key-mode-popup-gitflow-init)
-(define-key magit-gitflow-keymap (kbd "f") magit-gitflow-feature-keymap)
-(define-key magit-gitflow-keymap (kbd "r") magit-gitflow-release-keymap)
+  (magit-key-mode-add-group 'gitflow-release)
+  (magit-key-mode-insert-action 'gitflow-release "s" "Start" 'magit-key-mode-popup-gitflow-release-start)
+  (magit-key-mode-insert-action 'gitflow-release "f" "Finish" 'magit-key-mode-popup-gitflow-release-start)
+  (magit-key-mode-insert-action 'gitflow-release "p" "Publish" 'magit-key-mode-popup-gitflow-release-publish)
+  (magit-key-mode-insert-action 'gitflow-release "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
+  (magit-key-mode-generate 'gitflow-release)
 
-(define-key magit-mode-map (kbd "C-f") magit-gitflow-keymap)
+  (magit-key-mode-add-group 'gitflow)
+  (magit-key-mode-insert-action 'gitflow "i" "Init" 'magit-key-mode-popup-gitflow-init)
+  (magit-key-mode-insert-action 'gitflow "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
+  (magit-key-mode-insert-action 'gitflow "r" "Release" 'magit-key-mode-popup-gitflow-release)
+  (magit-key-mode-generate 'gitflow))
+
+(define-key magit-mode-map (kbd "C-f") 'magit-key-mode-popup-gitflow)
 
 (provide 'magit-gitflow)
 ;;; magit-gitflow.el ends here
