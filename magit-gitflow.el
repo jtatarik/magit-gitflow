@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'cl-macs)
 
 (defun magit-run-gitflow (&rest args)
   (apply #'magit-run-git "flow" args))
