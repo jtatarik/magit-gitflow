@@ -105,6 +105,27 @@
   (interactive)
   (magit-gitflow-feature "rebase"))
 
+(defun magit-gitflow-feature-track ()
+  (interactive)
+  (magit-gitflow-feature "track"))
+
+;; FIXME: display the resulting diff
+(defun magit-gitflow-feature-diff ()
+  (interactive)
+  (magit-gitflow-feature "diff"))
+
+;; TODO: offer list of current features to choose from
+(defun magit-gitflow-feature-checkout ()
+  (interactive)
+  (magit-gitflow-feature "checkout"))
+
+(defun magit-gitflow-feature-pull ()
+  (interactive)
+  (let ((remote (magit-read-remote "Remote" nil t)))
+    (magit-run-gitflow "feature" "pull"
+                       remote
+                       (magit-read-remote-branch "Feature" remote))))
+
 
 (defun magit-gitflow-release-start (version)
   (interactive "sVersion: ")
@@ -223,6 +244,10 @@
     (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-feature-start)
     (insert-action "p" "Publish" 'magit-gitflow-feature-publish)
     (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
+    (insert-action "t" "Track" 'magit-gitflow-feature-track)
+    (insert-action "D" "Diff" 'magit-gitflow-feature-diff)
+    (insert-action "c" "Checkout" 'magit-gitflow-feature-checkout)
+    (insert-action "P" "Pull" 'magit-gitflow-feature-pull)
     (insert-action "r" "Rebase" 'magit-key-mode-popup-gitflow-feature-rebase))
 
   (with-key-mode-group 'gitflow-release-start
