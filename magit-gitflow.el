@@ -100,6 +100,10 @@
   (interactive)
   (magit-gitflow-feature "delete"))
 
+(defun magit-gitflow-feature-rebase ()
+  (interactive)
+  (magit-gitflow-feature "rebase"))
+
 
 (defun magit-gitflow-release-start (version)
   (interactive "sVersion: ")
@@ -168,95 +172,99 @@
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
 
+(defmacro with-key-mode-group (group &rest body)
+  `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
+             (insert-switch (&rest args) (apply #'magit-key-mode-insert-switch ,group args))
+             (insert-argument (&rest args) (apply #'magit-key-mode-insert-argument ,group args)))
+
+     (magit-key-mode-add-group ,group)
+     ,@body
+     (magit-key-mode-generate ,group)))
 
 (progn
-  (magit-key-mode-add-group 'gitflow-init)
-  (magit-key-mode-insert-action 'gitflow-init "i" "Initialize defaults" 'magit-gitflow-init)
-  (magit-key-mode-insert-action 'gitflow-init "f" "Feature prefix" 'magit-gitflow-init-feature)
-  (magit-key-mode-insert-action 'gitflow-init "r" "Release prefix" 'magit-gitflow-init-release)
-  (magit-key-mode-insert-action 'gitflow-init "h" "Hotfix prefix" 'magit-gitflow-init-hotfix)
-  (magit-key-mode-insert-action 'gitflow-init "s" "Support prefix" 'magit-gitflow-init-support)
-  (magit-key-mode-insert-action 'gitflow-init "v" "Version tag prefix" 'magit-gitflow-init-versiontag)
-  (magit-key-mode-insert-switch 'gitflow-init "-f" "Force reinitialization" "--force")
-  (magit-key-mode-generate 'gitflow-init)
+  (with-key-mode-group 'gitflow-init
+   (insert-action "i" "Initialize defaults" 'magit-gitflow-init)
+   (insert-action "f" "Feature prefix" 'magit-gitflow-init-feature)
+   (insert-action "r" "Release prefix" 'magit-gitflow-init-release)
+   (insert-action "h" "Hotfix prefix" 'magit-gitflow-init-hotfix)
+   (insert-action "s" "Support prefix" 'magit-gitflow-init-support)
+   (insert-action "v" "Version tag prefix" 'magit-gitflow-init-versiontag)
+   (insert-switch "-f" "Force reinitialization" "--force"))
 
+  (with-key-mode-group 'gitflow-feature-start
+    (insert-action "s" "Start" 'magit-gitflow-feature-start)
+    (insert-switch "-F" "Fetch" "--fetch"))
 
-  (magit-key-mode-add-group 'gitflow-feature-start)
-  (magit-key-mode-insert-action 'gitflow-feature-start "s" "Start" 'magit-gitflow-feature-start)
-  (magit-key-mode-insert-switch 'gitflow-feature-start "-F" "Fetch" "--fetch")
-  (magit-key-mode-generate 'gitflow-feature-start)
+  (with-key-mode-group 'gitflow-feature-finish
+    (insert-action "f" "Finish" 'magit-gitflow-feature-finish)
+    (insert-switch "-F" "Fetch" "--fetch")
+    (insert-switch "-r" "Rebase" "--rebase")
+    (insert-switch "-p" "Preserve merges" "--preserve-merges")
+    (insert-switch "-k" "Keep branch" "--keep")
+    (insert-switch "-Kr" "Keep remote branch" "--keepremote")
+    (insert-switch "-Kl" "Keep local branch" "--keeplocal")
+    (insert-switch "-D" "Force delete branch" "--force_delete")
+    (insert-switch "-s" "Squash" "--squash")
+    (insert-switch "-n" "No fast-forward" "--no-ff"))
 
+  (with-key-mode-group 'gitflow-feature-delete
+    (insert-action "d" "Delete" 'magit-gitflow-feature-delete)
+    (insert-switch "-f" "Force" "--force")
+    (insert-switch "-r" "Delete remote" "--remote"))
 
-  (magit-key-mode-add-group 'gitflow-feature-finish)
-  (magit-key-mode-insert-action 'gitflow-feature-finish "f" "Finish" 'magit-gitflow-feature-finish)
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-F" "Fetch" "--fetch")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-r" "Rebase" "--rebase")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-p" "Preserve merges" "--preserve-merges")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-k" "Keep branch" "--keep")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-Kr" "Keep remote branch" "--keepremote")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-Kl" "Keep local branch" "--keeplocal")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-D" "Force delete branch" "--force_delete")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-s" "Squash" "--squash")
-  (magit-key-mode-insert-switch 'gitflow-feature-finish "-n" "No fast-forward" "--no-ff")
-  (magit-key-mode-generate 'gitflow-feature-finish)
+  (with-key-mode-group 'gitflow-feature-rebase
+    (insert-action "r" "Rebase" 'magit-gitflow-feature-rebase)
+    (insert-switch "-i" "Interactive" "--interactive")
+    (insert-switch "-p" "Preserve merges" "--preserve-merges"))
 
-  (magit-key-mode-add-group 'gitflow-feature-delete)
-  (magit-key-mode-insert-action 'gitflow-feature-delete "d" "Delete" 'magit-gitflow-feature-delete)
-  (magit-key-mode-insert-switch 'gitflow-feature-delete "-f" "Force" "--force")
-  (magit-key-mode-insert-switch 'gitflow-feature-delete "-r" "Delete remote" "--remote")
-  (magit-key-mode-generate 'gitflow-feature-delete)
+  (with-key-mode-group 'gitflow-feature
+    (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-feature-start)
+    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-feature-start)
+    (insert-action "p" "Publish" 'magit-gitflow-feature-publish)
+    (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
+    (insert-action "r" "Rebase" 'magit-key-mode-popup-gitflow-feature-rebase))
 
-  (magit-key-mode-add-group 'gitflow-feature)
-  (magit-key-mode-insert-action 'gitflow-feature "s" "Start" 'magit-key-mode-popup-gitflow-feature-start)
-  (magit-key-mode-insert-action 'gitflow-feature "f" "Finish" 'magit-key-mode-popup-gitflow-feature-start)
-  (magit-key-mode-insert-action 'gitflow-feature "p" "Publish" 'magit-gitflow-feature-publish)
-  (magit-key-mode-insert-action 'gitflow-feature "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
-  (magit-key-mode-generate 'gitflow-feature)
+  (with-key-mode-group 'gitflow-release-start
+    (insert-action "s" "Start" 'magit-gitflow-release-start)
+    (insert-switch "-F" "Fetch" "--fetch"))
 
-  (magit-key-mode-add-group 'gitflow-release-start)
-  (magit-key-mode-insert-action 'gitflow-release-start "s" "Start" 'magit-gitflow-release-start)
-  (magit-key-mode-insert-switch 'gitflow-release-start "-F" "Fetch" "--fetch")
-  (magit-key-mode-generate 'gitflow-release-start)
+  (with-key-mode-group 'gitflow-release-finish
+    (insert-action "f" "Finish" 'magit-gitflow-release-finish)
+    (insert-switch "-F" "Fetch before finish" "--fetch")
+    (insert-switch "-s" "Sign" "--sign")
+    (insert-argument "=u" "Signing key" "--signingkey=" 'read-file-name)
+    (insert-argument "=m" "Tag message" "--message=" 'read-string)
+    (insert-argument "=f" "Tag message file" "--messagefile=" 'read-file-name)
+    (insert-switch "-p" "Push after finish" "--push")
+    (insert-switch "-k" "Keep branch" "--keep")
+    (insert-switch "-Kr" "Keep remote branch" "--keepremote")
+    (insert-switch "-Kl" "Keep local branch" "--keeplocal")
+    (insert-switch "-D" "Force delete branch" "--force_delete")
+    (insert-switch "-n" "Don't tag" "--tag")
+    (insert-switch "-b" "Don't back-merge master" "--nobackmerge")
+    (insert-switch "-S" "Squash" "--squash"))
 
-  (magit-key-mode-add-group 'gitflow-release-finish)
-  (magit-key-mode-insert-action 'gitflow-release-finish "f" "Finish" 'magit-gitflow-release-finish)
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-F" "Fetch before finish" "--fetch")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-s" "Sign" "--sign")
-  (magit-key-mode-insert-argument 'gitflow-release-finish "=u" "Signing key" "--signingkey="
-                                  'read-file-name)
-  (magit-key-mode-insert-argument 'gitflow-release-finish "=m" "Tag message" "--message="
-                                  'read-string)
-  (magit-key-mode-insert-argument 'gitflow-release-finish "=f" "Tag message file" "--messagefile="
-                                  'read-file-name)
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-p" "Push after finish" "--push")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-k" "Keep branch" "--keep")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-Kr" "Keep remote branch" "--keepremote")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-Kl" "Keep local branch" "--keeplocal")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-D" "Force delete branch" "--force_delete")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-n" "Don't tag" "--tag")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-b" "Don't back-merge master" "--nobackmerge")
-  (magit-key-mode-insert-switch 'gitflow-release-finish "-S" "Squash" "--squash")
-  (magit-key-mode-generate 'gitflow-release-finish)
+  (with-key-mode-group 'gitflow-release-delete
+     (insert-action  "d" "Delete" 'magit-gitflow-release-delete)
+     (insert-switch  "-f" "Force" "--force")
+     (insert-switch  "-r" "Delete remote branch" "--remote"))
 
-  (magit-key-mode-add-group 'gitflow-release-delete)
-  (magit-key-mode-insert-action 'gitflow-release-delete "d" "Delete" 'magit-gitflow-release-delete)
-  (magit-key-mode-insert-switch 'gitflow-release-delete "-f" "Force" "--force")
-  (magit-key-mode-insert-switch 'gitflow-release-delete "-r" "Delete remote branch" "--remote")
-  (magit-key-mode-generate 'gitflow-release-delete)
+  (with-key-mode-group 'gitflow-release-delete
+    (insert-action "d" "Delete" 'magit-gitflow-release-delete)
+    (insert-switch "-f" "Force" "--force")
+    (insert-switch "-r" "Delete remote branch" "--remote"))
 
-  (magit-key-mode-add-group 'gitflow-release)
-  (magit-key-mode-insert-action 'gitflow-release "s" "Start" 'magit-key-mode-popup-gitflow-release-start)
-  (magit-key-mode-insert-action 'gitflow-release "f" "Finish" 'magit-key-mode-popup-gitflow-release-finish)
-  (magit-key-mode-insert-action 'gitflow-release "p" "Publish" 'magit-gitflow-release-publish)
-  (magit-key-mode-insert-action 'gitflow-release "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
-  (magit-key-mode-insert-action 'gitflow-release "t" "Track" 'magit-gitflow-release-track)
-  (magit-key-mode-generate 'gitflow-release)
+  (with-key-mode-group 'gitflow-release
+    (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-release-start)
+    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-release-finish)
+    (insert-action "p" "Publish" 'magit-gitflow-release-publish)
+    (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
+    (insert-action "t" "Track" 'magit-gitflow-release-track))
 
-  (magit-key-mode-add-group 'gitflow)
-  (magit-key-mode-insert-action 'gitflow "i" "Init" 'magit-key-mode-popup-gitflow-init)
-  (magit-key-mode-insert-action 'gitflow "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
-  (magit-key-mode-insert-action 'gitflow "r" "Release" 'magit-key-mode-popup-gitflow-release)
-  (magit-key-mode-generate 'gitflow))
+  (with-key-mode-group 'gitflow
+    (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
+    (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
+    (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)))
 
 (define-key magit-mode-map (kbd "C-f") 'magit-key-mode-popup-gitflow)
 
