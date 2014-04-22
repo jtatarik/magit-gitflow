@@ -246,11 +246,6 @@
      (insert-switch  "-f" "Force" "--force")
      (insert-switch  "-r" "Delete remote branch" "--remote"))
 
-  (with-key-mode-group 'gitflow-release-delete
-    (insert-action "d" "Delete" 'magit-gitflow-release-delete)
-    (insert-switch "-f" "Force" "--force")
-    (insert-switch "-r" "Delete remote branch" "--remote"))
-
   (with-key-mode-group 'gitflow-release
     (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-release-start)
     (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-release-finish)
