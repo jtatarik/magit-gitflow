@@ -199,6 +199,11 @@
   (magit-gitflow-hotfix "delete"))
 
 
+(defun magit-gitflow-support-start ()
+  (interactive)
+  (magit-run-gitflow "support" "start" magit-custom-options
+                     (read-string "Branch name: ")
+                     (read-string "Base: " "master")))
 
 (defmacro with-key-mode-group (group &rest body)
   `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
@@ -318,11 +323,16 @@
                        (insert-action "p" "Publish" 'magit-gitflow-hotfix-publish)
                        (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-hotfix-delete))
 
+  (with-key-mode-group 'gitflow-support-start
+                       (insert-action "s" "Start" 'magit-gitflow-support-start)
+                       (insert-switch "-F" "Fetch" "--fetch"))
+
   (with-key-mode-group 'gitflow
     (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
     (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
     (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)
-    (insert-action "h" "Hotfix" 'magit-key-mode-popup-gitflow-hotfix)))
+    (insert-action "h" "Hotfix" 'magit-key-mode-popup-gitflow-hotfix)
+    (insert-action "s" "Support" 'magit-key-mode-popup-gitflow-support-start)))
 
 (easy-menu-define magit-gitflow-extension-menu nil
   "Gitflow extension menu"
@@ -359,7 +369,9 @@
      ["Start" magit-key-mode-popup-gitflow-hotfix-start]
      ["Finish" magit-key-mode-popup-gitflow-hotfix-finish]
      ["Publish" magit-gitflow-hotfix-publish]
-     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])))
+     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])
+
+    ["Support" magit-key-mode-popup-gitflow-support-start]))
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
