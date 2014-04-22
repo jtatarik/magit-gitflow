@@ -165,6 +165,41 @@
   (magit-gitflow-release "track"))
 
 
+(defun magit-gitflow-hotfix-start (version)
+  (interactive "sName: ")
+  (magit-run-gitflow "hotfix" "start" magit-custom-options version))
+
+(defun magit-gitflow-hotfix (cmd)
+  (let* ((prefix (magit-get "gitflow.prefix.hotfix"))
+         (current-branch (magit-get-current-branch))
+         (current-hotfix (if (string-prefix-p prefix current-branch)
+                              (substring current-branch (length prefix))
+                            "")))
+
+    (magit-run-gitflow "hotfix" cmd
+                       magit-custom-options
+                       (read-string "Name: " current-hotfix))))
+
+(defun magit-gitflow-hotfix-finish ()
+  (interactive)
+  (let* ((prefix (magit-get "gitflow.prefix.hotfix"))
+         (current-branch (magit-get-current-branch))
+         (current-hotfix (if (string-prefix-p prefix current-branch)
+                              (substring current-branch (length prefix))
+                            ""))
+         (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Version: " current-hotfix)))))
+    (magit-commit-internal "flow" args)))
+
+(defun magit-gitflow-hotfix-publish ()
+  (interactive)
+  (magit-gitflow-hotfix "publish"))
+
+(defun magit-gitflow-hotfix-delete ()
+  (interactive)
+  (magit-gitflow-hotfix "delete"))
+
+
+
 (defmacro with-key-mode-group (group &rest body)
   `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
              (insert-switch (&rest args) (apply #'magit-key-mode-insert-switch ,group args))
@@ -253,10 +288,41 @@
     (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
     (insert-action "t" "Track" 'magit-gitflow-release-track))
 
+  (with-key-mode-group 'gitflow-hotfix-start
+                       (insert-action "s" "Start" 'magit-gitflow-hotfix-start)
+                       (insert-switch "-F" "Fetch" "--fetch"))
+
+  (with-key-mode-group 'gitflow-hotfix-finish
+                       (insert-action "f" "Finish" 'magit-gitflow-hotfix-finish)
+                       (insert-switch "-F" "Fetch before finish" "--fetch")
+                       (insert-switch "-s" "Sign" "--sign")
+                       (insert-argument "=u" "Signing key" "--signingkey=" 'read-file-name)
+                       (insert-argument "=m" "Tag message" "--message=" 'read-string)
+                       (insert-argument "=f" "Tag message file" "--messagefile=" 'read-file-name)
+                       (insert-switch "-p" "Push after finish" "--push")
+                       (insert-switch "-k" "Keep branch" "--keep")
+                       (insert-switch "-Kr" "Keep remote branch" "--keepremote")
+                       (insert-switch "-Kl" "Keep local branch" "--keeplocal")
+                       (insert-switch "-D" "Force delete branch" "--force_delete")
+                       (insert-switch "-n" "Don't tag" "--tag")
+                       (insert-switch "-b" "Don't back-merge master" "--nobackmerge"))
+
+  (with-key-mode-group 'gitflow-hotfix-delete
+                       (insert-action  "d" "Delete" 'magit-gitflow-hotfix-delete)
+                       (insert-switch  "-f" "Force" "--force")
+                       (insert-switch  "-r" "Delete remote branch" "--remote"))
+
+  (with-key-mode-group 'gitflow-hotfix
+                       (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-hotfix-start)
+                       (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-hotfix-finish)
+                       (insert-action "p" "Publish" 'magit-gitflow-hotfix-publish)
+                       (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-hotfix-delete))
+
   (with-key-mode-group 'gitflow
     (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
     (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
-    (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)))
+    (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)
+    (insert-action "h" "Hotfix" 'magit-key-mode-popup-gitflow-hotfix)))
 
 (easy-menu-define magit-gitflow-extension-menu nil
   "Gitflow extension menu"
@@ -287,7 +353,13 @@
      ["Finish" magit-key-mode-popup-gitflow-release-finish]
      ["Publish" magit-gitflow-release-publish]
      ["Delete" magit-key-mode-popup-gitflow-release-delete]
-     ["Track" magit-gitflow-release-track])))
+     ["Track" magit-gitflow-release-track])
+
+    ("Hotfix"
+     ["Start" magit-key-mode-popup-gitflow-hotfix-start]
+     ["Finish" magit-key-mode-popup-gitflow-hotfix-finish]
+     ["Publish" magit-gitflow-hotfix-publish]
+     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])))
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
