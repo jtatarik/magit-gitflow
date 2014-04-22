@@ -109,10 +109,14 @@
   (interactive)
   (magit-gitflow-feature "track"))
 
-;; FIXME: display the resulting diff
 (defun magit-gitflow-feature-diff ()
   (interactive)
-  (magit-gitflow-feature "diff"))
+  (let* ((prefix (magit-get "gitflow.prefix.feature"))
+         (current-branch (magit-get-current-branch))
+         (base (magit-get (format "gitflow.branch.%s.base" current-branch))))
+
+    (when (and (string-prefix-p prefix current-branch) base)
+      (magit-diff base current-branch))))
 
 (defun magit-gitflow-feature-pull ()
   (interactive)
