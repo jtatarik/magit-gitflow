@@ -241,7 +241,7 @@
 
   (with-key-mode-group 'gitflow-feature
     (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-feature-start)
-    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-feature-start)
+    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-feature-finish)
     (insert-action "p" "Publish" 'magit-gitflow-feature-publish)
     (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
     (insert-action "t" "Track" 'magit-gitflow-feature-track)
