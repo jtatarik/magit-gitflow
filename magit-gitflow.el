@@ -164,35 +164,6 @@
   (interactive)
   (magit-gitflow-release "track"))
 
-(easy-menu-define magit-gitflow-extension-menu nil
-  "Gitflow extension menu"
-  '("GitFlow" :visible magit-gitflow-mode
-
-    ("Initialization/setup" :visible magit-gitflow-mode
-      ["Initialize defaults" magit-gitflow-init
-       :help "Initialize GitFlow in the current repository"]
-      ["Set feature prefix" magit-gitflow-init-feature]
-      ["Set release prefix" magit-gitflow-init-release]
-      ["Set hotfix prefix" magit-gitflow-init-hotfix]
-      ["Set support prefix" magit-gitflow-init-support]
-      ["Set versiontag prefix" magit-gitflow-init-versiontag])
-
-    ("Feature"
-     ["Start" magit-gitflow-feature-start
-      :help "Start new feature"]
-     ["Finish" magit-gitflow-feature-finish
-      :help "Finish new feature"]
-     ["Publish" magit-gitflow-feature-publish]
-     ["Delete" magit-gitflow-feature-delete])
-
-    ("Release"
-     ["Start" magit-gitflow-release-start]
-     ["Finish" magit-gitflow-release-finish]
-     ["Publish" magit-gitflow-release-publish]
-     ["Delete" magit-gitflow-release-delete])))
-
-(easy-menu-add-item 'magit-mode-menu '("Extensions")
-                    magit-gitflow-extension-menu)
 
 (defmacro with-key-mode-group (group &rest body)
   `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
@@ -291,6 +262,40 @@
     (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
     (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
     (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)))
+
+(easy-menu-define magit-gitflow-extension-menu nil
+  "Gitflow extension menu"
+  '("GitFlow" :visible magit-gitflow-mode
+
+    ("Initialization/setup" :visible magit-gitflow-mode
+     ["Initialize defaults" magit-gitflow-init
+      :help "Initialize GitFlow in the current repository"]
+     ["Set feature prefix" magit-gitflow-init-feature]
+     ["Set release prefix" magit-gitflow-init-release]
+     ["Set hotfix prefix" magit-gitflow-init-hotfix]
+     ["Set support prefix" magit-gitflow-init-support]
+     ["Set versiontag prefix" magit-gitflow-init-versiontag])
+
+    ("Feature"
+     ["Start" magit-key-mode-popup-gitflow-feature-start]
+     ["Finish" magit-key-mode-popup-gitflow-feature-finish]
+     ["Publish" magit-gitflow-feature-publish]
+     ["Delete" magit-key-mode-popup-gitflow-feature-delete]
+     ["Track" magit-gitflow-feature-track]
+     ["Diff" magit-gitflow-feature-diff]
+     ["Checkout" magit-gitflow-feature-checkout]
+     ["Pull" magit-gitflow-feature-pull]
+     ["Rebase" magit-key-mode-popup-gitflow-feature-rebase])
+
+    ("Release"
+     ["Start" magit-key-mode-popup-gitflow-release-start]
+     ["Finish" magit-key-mode-popup-gitflow-release-finish]
+     ["Publish" magit-gitflow-release-publish]
+     ["Delete" magit-key-mode-popup-gitflow-release-delete]
+     ["Track" magit-gitflow-release-track])))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions")
+                    magit-gitflow-extension-menu)
 
 (define-key magit-mode-map (kbd "C-f") 'magit-key-mode-popup-gitflow)
 
