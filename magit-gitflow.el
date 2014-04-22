@@ -198,7 +198,7 @@
   (interactive)
   (magit-run-gitflow "support" "start" magit-custom-options
                      (read-string "Branch name: ")
-                     (read-string "Base: " "master")))
+                     (magit-read-rev "Base")))
 
 (defmacro with-key-mode-group (group &rest body)
   `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
