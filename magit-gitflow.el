@@ -114,11 +114,6 @@
   (interactive)
   (magit-gitflow-feature "diff"))
 
-;; TODO: offer list of current features to choose from
-(defun magit-gitflow-feature-checkout ()
-  (interactive)
-  (magit-gitflow-feature "checkout"))
-
 (defun magit-gitflow-feature-pull ()
   (interactive)
   (let ((remote (magit-read-remote "Remote" nil t)))
@@ -257,7 +252,6 @@
     (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
     (insert-action "t" "Track" 'magit-gitflow-feature-track)
     (insert-action "D" "Diff" 'magit-gitflow-feature-diff)
-    (insert-action "c" "Checkout" 'magit-gitflow-feature-checkout)
     (insert-action "P" "Pull" 'magit-gitflow-feature-pull)
     (insert-action "r" "Rebase" 'magit-key-mode-popup-gitflow-feature-rebase))
 
@@ -354,7 +348,6 @@
      ["Delete" magit-key-mode-popup-gitflow-feature-delete]
      ["Track" magit-gitflow-feature-track]
      ["Diff" magit-gitflow-feature-diff]
-     ["Checkout" magit-gitflow-feature-checkout]
      ["Pull" magit-gitflow-feature-pull]
      ["Rebase" magit-key-mode-popup-gitflow-feature-rebase])
 
