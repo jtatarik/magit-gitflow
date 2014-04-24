@@ -135,7 +135,7 @@
 
 
 (defun magit-gitflow-release-start (version)
-  (interactive "sVersion: ")
+  (interactive "sRelease name: ")
   (magit-run-gitflow "release" "start" magit-custom-options version))
 
 (defun magit-gitflow-release-finish ()
@@ -145,7 +145,7 @@
         (current-release (if (string-prefix-p prefix current-branch)
                              (substring current-branch (length prefix))
                            ""))
-        (args (append '("release" "finish") magit-custom-options (list (read-string "Version: " current-release)))))
+        (args (append '("release" "finish") magit-custom-options (list (read-string "Release name: " current-release)))))
     (magit-commit-internal "flow" args)))
 
 (define-gitflow-runner2 "release" "publish")
@@ -153,7 +153,7 @@
 (define-gitflow-runner2 "release" "track")
 
 (defun magit-gitflow-hotfix-start (version)
-  (interactive "sName: ")
+  (interactive "sHotfix name: ")
   (magit-run-gitflow "hotfix" "start" magit-custom-options version))
 
 (defun magit-gitflow-hotfix-finish ()
@@ -163,7 +163,7 @@
          (current-hotfix (if (string-prefix-p prefix current-branch)
                               (substring current-branch (length prefix))
                             ""))
-         (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Version: " current-hotfix)))))
+         (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Hotfix name: " current-hotfix)))))
     (magit-commit-internal "flow" args)))
 
 (define-gitflow-runner2 "hotfix" "publish")
@@ -173,7 +173,7 @@
 (defun magit-gitflow-support-start ()
   (interactive)
   (magit-run-gitflow "support" "start" magit-custom-options
-                     (read-string "Branch name: ")
+                     (read-string "Support branch name: ")
                      (magit-read-rev "Base")))
 
 (defmacro with-key-mode-group (group &rest body)
