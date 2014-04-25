@@ -1,4 +1,4 @@
-;;; magit-gitflow.el --- gitflow plugin for magit           -*- lexical-binding: t; -*-
+;;; magit-gitflow.el --- gitflow extension for magit           -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014  Jan Tatarik
 
@@ -28,9 +28,11 @@
 (require 'magit)
 (require 'cl-macs)
 
+(defvar magit-gitflow-mode-lighter " GitFlow")
+
 (define-minor-mode magit-gitflow-mode
-  "Magit GitFlow plugin"
-  :lighter " Gitflow"
+  "Magit GitFlow extension"
+  :lighter magit-gitflow-mode-lighter
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit")))
 
@@ -40,38 +42,48 @@
 
 
 (defun magit-run-gitflow (&rest args)
+  "Execute 'git flow' with given ARGS."
   (apply #'magit-run-git "flow" args))
 
 
-(defmacro define-gitflow-runner (action)
-  (let ((defun-name (intern (format "magit-run-gitflow-%s" action)))
-        (version-prompt (format "%s name: " (upcase-initials action)))
-        (config-key (format "gitflow.prefix.%s" action)))
+(defmacro define-magit-gitflow-cmd (cmd)
+  "Define function that executes 'git flow CMD' commands.
 
-    `(fset ',defun-name (lambda (cmd)
+The new function will be called magit-run-gitflow-CMD."
+
+  (let ((defun-name (intern (format "magit-run-gitflow-%s" cmd)))
+        (version-prompt (format "%s name: " (upcase-initials cmd)))
+        (config-key (format "gitflow.prefix.%s" cmd)))
+
+    `(fset ',defun-name (lambda (args)
         (let* ((prefix (magit-get ,config-key))
                (current-branch (magit-get-current-branch))
                (current-feature (if (string-prefix-p prefix current-branch)
                                     (substring current-branch (length prefix))
                                   "")))
 
-          (magit-run-gitflow ,action cmd
+          (magit-run-gitflow ,cmd args
                              magit-custom-options
                              (read-string ,version-prompt current-feature)))))))
 
-(define-gitflow-runner "feature")
-(define-gitflow-runner "release")
-(define-gitflow-runner "hotfix")
+(define-magit-gitflow-cmd "feature")
+(define-magit-gitflow-cmd "release")
+(define-magit-gitflow-cmd "hotfix")
 
 
-(defmacro define-gitflow-runner2 (branch action)
-  (let ((runner (intern (format "magit-run-gitflow-%s" branch)))
-        (defun-name (intern (format "magit-gitflow-%s-%s" branch action))))
+(defmacro define-magit-gitflow-branch-cmd (branch cmd)
+  "Define function that executes 'git flow BRANCH CMD' commands.
+
+The new function will be called magit-gitflow-BRANCH-CMD."
+
+  (let ((branch-execute (intern (format "magit-run-gitflow-%s" branch)))
+        (defun-name (intern (format "magit-gitflow-%s-%s" branch cmd))))
 
     `(fset ',defun-name
            (lambda ()
              (interactive)
-             (,runner ,action)))))
+             (,branch-execute ,cmd)))))
+
 
 (defun magit-gitflow-init ()
   (interactive)
@@ -109,11 +121,11 @@
   (interactive "sFeature name: ")
   (magit-run-gitflow "feature" "start"  magit-custom-options name))
 
-(define-gitflow-runner2 "feature" "finish")
-(define-gitflow-runner2 "feature" "publish")
-(define-gitflow-runner2 "feature" "delete")
-(define-gitflow-runner2 "feature" "rebase")
-(define-gitflow-runner2 "feature" "track")
+(define-magit-gitflow-branch-cmd "feature" "finish")
+(define-magit-gitflow-branch-cmd "feature" "publish")
+(define-magit-gitflow-branch-cmd "feature" "delete")
+(define-magit-gitflow-branch-cmd "feature" "rebase")
+(define-magit-gitflow-branch-cmd "feature" "track")
 
 (defun magit-gitflow-feature-diff ()
   (interactive)
@@ -148,9 +160,9 @@
         (args (append '("release" "finish") magit-custom-options (list (read-string "Release name: " current-release)))))
     (magit-commit-internal "flow" args)))
 
-(define-gitflow-runner2 "release" "publish")
-(define-gitflow-runner2 "release" "delete")
-(define-gitflow-runner2 "release" "track")
+(define-magit-gitflow-branch-cmd "release" "publish")
+(define-magit-gitflow-branch-cmd "release" "delete")
+(define-magit-gitflow-branch-cmd "release" "track")
 
 (defun magit-gitflow-hotfix-start (version)
   (interactive "sHotfix name: ")
@@ -166,8 +178,8 @@
          (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Hotfix name: " current-hotfix)))))
     (magit-commit-internal "flow" args)))
 
-(define-gitflow-runner2 "hotfix" "publish")
-(define-gitflow-runner2 "hotfix" "delete")
+(define-magit-gitflow-branch-cmd "hotfix" "publish")
+(define-magit-gitflow-branch-cmd "hotfix" "delete")
 
 
 (defun magit-gitflow-support-start ()
