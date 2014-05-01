@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014  Jan Tatarik
 
 ;; Author: Jan Tatarik <Jan.Tatarik@gmail.com>
-;; Keywords: 
+;; Keywords: vc tools
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 
 ;; (require 'magit-gitflow)
 ;; (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+;;
+;; C-f in magit status buffer will invoke gitflow action selector.
+;;
 
 ;;; Code:
 
@@ -198,6 +201,9 @@ The new function will be called magit-gitflow-BRANCH-CMD."
      (magit-key-mode-generate ,group)))
 
 (progn
+  ;;
+  ;; git flow INIT
+  ;;
   (with-key-mode-group 'gitflow-init
    (insert-action "i" "Initialize defaults" 'magit-gitflow-init)
    (insert-action "f" "Feature prefix" 'magit-gitflow-init-feature)
@@ -207,6 +213,9 @@ The new function will be called magit-gitflow-BRANCH-CMD."
    (insert-action "v" "Version tag prefix" 'magit-gitflow-init-versiontag)
    (insert-switch "-f" "Force reinitialization" "--force"))
 
+  ;;
+  ;; git flow FEATURE
+  ;;
   (with-key-mode-group 'gitflow-feature-start
     (insert-action "s" "Start" 'magit-gitflow-feature-start)
     (insert-switch "-F" "Fetch" "--fetch"))
@@ -243,6 +252,9 @@ The new function will be called magit-gitflow-BRANCH-CMD."
     (insert-action "P" "Pull" 'magit-gitflow-feature-pull)
     (insert-action "r" "Rebase" 'magit-key-mode-popup-gitflow-feature-rebase))
 
+  ;;
+  ;; git flow RELEASE
+  ;;
   (with-key-mode-group 'gitflow-release-start
     (insert-action "s" "Start" 'magit-gitflow-release-start)
     (insert-switch "-F" "Fetch" "--fetch"))
@@ -275,6 +287,10 @@ The new function will be called magit-gitflow-BRANCH-CMD."
     (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
     (insert-action "t" "Track" 'magit-gitflow-release-track))
 
+
+  ;;
+  ;; git flow HOTFIX
+  ;;
   (with-key-mode-group 'gitflow-hotfix-start
                        (insert-action "s" "Start" 'magit-gitflow-hotfix-start)
                        (insert-switch "-F" "Fetch" "--fetch"))
@@ -305,10 +321,17 @@ The new function will be called magit-gitflow-BRANCH-CMD."
                        (insert-action "p" "Publish" 'magit-gitflow-hotfix-publish)
                        (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-hotfix-delete))
 
+
+  ;;
+  ;; git flow SUPPORT
+  ;;
   (with-key-mode-group 'gitflow-support-start
                        (insert-action "s" "Start" 'magit-gitflow-support-start)
                        (insert-switch "-F" "Fetch" "--fetch"))
 
+  ;;
+  ;; git flow
+  ;;
   (with-key-mode-group 'gitflow
     (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
     (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
@@ -320,7 +343,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
   "Gitflow extension menu"
   '("GitFlow" :visible magit-gitflow-mode
 
-    ("Initialization/setup" :visible magit-gitflow-mode
+    ("Initialization/setup"
      ["Initialize defaults" magit-gitflow-init
       :help "Initialize GitFlow in the current repository"]
      ["Set feature prefix" magit-gitflow-init-feature]
