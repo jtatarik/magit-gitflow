@@ -3,8 +3,9 @@ magit-gitflow
 
 [GitFlow][gitflow] plugin for magit.el
 
-Early stage of development, but should be already usable. It currently
-requires a patched version of [magit] to work.
+Early stage of development.
+
+This version only works with [magit/next][magit] branch.
 
 
 Setup
@@ -20,4 +21,4 @@ buffer. Or use the Magit/Extensions/GitFlow menu.
 
 
 [gitflow]: https://github.com/petervanderdoes/gitflow
-[magit]: https://github.com/jtatarik/magit/tree/fix_add_group_arguments
+[magit]: https://github.com/magit/magit/tree/next
