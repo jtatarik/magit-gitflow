@@ -375,8 +375,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
                              (substring current-branch (length prefix))
                            ""))
         (args (append '("release" "finish") magit-current-popup-args (list (read-string "Release name: " current-release)))))
-    ;; FIXME
-    (magit-commit-fallback "flow" args)))
+    (magit-run-git-with-editor "flow" args)))
 
 (define-magit-gitflow-branch-cmd "release" "publish")
 (define-magit-gitflow-branch-cmd "release" "delete")
@@ -394,8 +393,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
                               (substring current-branch (length prefix))
                             ""))
          (args (append '("hotfix" "finish") magit-current-popup-args (list (read-string "Hotfix name: " current-hotfix)))))
-    ;; FIXME
-    (magit-commit-fallback "flow" args)))
+    (magit-run-git-with-editor "flow" args)))
 
 (define-magit-gitflow-branch-cmd "hotfix" "publish")
 (define-magit-gitflow-branch-cmd "hotfix" "delete")
