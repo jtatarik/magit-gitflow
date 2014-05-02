@@ -355,7 +355,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-feature-pull ()
   (interactive)
-  (let ((remote (magit-read-remote "Remote" nil t))) ; FIXME: magit-read-remote called with 3 arguments,but accepts only 1-2
+  (let ((remote (magit-read-remote "Remote" nil)))
     (magit-run-gitflow "feature" "pull"
                        remote
                        (magit-read-remote-branch "Feature" remote))))
