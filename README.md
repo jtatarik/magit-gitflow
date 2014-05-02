@@ -3,8 +3,6 @@ magit-gitflow
 
 [GitFlow][gitflow] plugin for magit.el
 
-Early stage of development.
-
 This version only works with [magit/next][magit] branch.
 
 
