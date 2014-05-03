@@ -1,9 +1,7 @@
 magit-gitflow
 =============
 
-[GitFlow][gitflow] plugin for magit.el
-
-Requires [patched] version of [magit] to work.
+[GitFlow][gitflow] plugin for [magit].
 
 
 Setup
@@ -19,5 +17,4 @@ buffer. Or use the Magit/Extensions/GitFlow menu.
 
 
 [gitflow]: https://github.com/petervanderdoes/gitflow
-[patched]: https://github.com/jtatarik/magit/tree/fix_add_group_arguments
 [magit]: https://github.com/magit/magit/tree/master
