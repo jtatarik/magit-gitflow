@@ -7,7 +7,7 @@ magit-gitflow
 Setup
 -----
 
-Put the following in your `.emacs`:
+Install [gitflow] and put the following in your `.emacs`:
 
 ```lisp
 (require 'magit-gitflow)
