@@ -39,9 +39,15 @@
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
+(defvar magit-gitflow-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-f") 'magit-key-mode-popup-gitflow)
+    map))
+
 (define-minor-mode magit-gitflow-mode
   "Magit GitFlow extension"
   :lighter magit-gitflow-mode-lighter
+  :keymap  magit-gitflow-mode-map
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit")))
 
@@ -385,7 +391,6 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
 
-(define-key magit-mode-map (kbd "C-f") 'magit-key-mode-popup-gitflow)
 
 (provide 'magit-gitflow)
 ;;; magit-gitflow.el ends here
