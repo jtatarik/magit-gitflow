@@ -56,7 +56,7 @@
 
 
 (defmacro define-magit-gitflow-cmd (cmd)
-  "Define function that executes 'git flow CMD' commands.
+  "Create defun to execute 'git flow CMD' commands.
 
 The new function will be called magit-run-gitflow-CMD."
 
@@ -64,16 +64,16 @@ The new function will be called magit-run-gitflow-CMD."
         (version-prompt (format "%s name: " (upcase-initials cmd)))
         (config-key (format "gitflow.prefix.%s" cmd)))
 
-    `(fset ',defun-name (lambda (args)
-        (let* ((prefix (magit-get ,config-key))
-               (current-branch (magit-get-current-branch))
-               (current-feature (if (string-prefix-p prefix current-branch)
-                                    (substring current-branch (length prefix))
-                                  "")))
+    `(defun ,defun-name (args)
+       (let* ((prefix (magit-get ,config-key))
+              (current-branch (magit-get-current-branch))
+              (current-feature (if (string-prefix-p prefix current-branch)
+                                   (substring current-branch (length prefix))
+                                 "")))
 
-          (magit-run-gitflow ,cmd args
-                             magit-custom-options
-                             (read-string ,version-prompt current-feature)))))))
+         (magit-run-gitflow ,cmd args
+                            magit-custom-options
+                            (read-string ,version-prompt current-feature))))))
 
 (define-magit-gitflow-cmd "feature")
 (define-magit-gitflow-cmd "release")
@@ -81,17 +81,16 @@ The new function will be called magit-run-gitflow-CMD."
 
 
 (defmacro define-magit-gitflow-branch-cmd (branch cmd)
-  "Define function that executes 'git flow BRANCH CMD' commands.
+  "Create defun to execute 'git flow BRANCH CMD' commands.
 
 The new function will be called magit-gitflow-BRANCH-CMD."
 
   (let ((branch-execute (intern (format "magit-run-gitflow-%s" branch)))
         (defun-name (intern (format "magit-gitflow-%s-%s" branch cmd))))
 
-    `(fset ',defun-name
-           (lambda ()
-             (interactive)
-             (,branch-execute ,cmd)))))
+    `(defun ,defun-name ()
+       (interactive)
+       (,branch-execute ,cmd))))
 
 
 (defun magit-gitflow-init ()
