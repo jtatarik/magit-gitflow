@@ -45,7 +45,7 @@
     map))
 
 (define-minor-mode magit-gitflow-mode
-  "Magit GitFlow extension"
+  "GitFlow support for Magit."
   :lighter magit-gitflow-mode-lighter
   :keymap  magit-gitflow-mode-map
   (or (derived-mode-p 'magit-mode)
@@ -55,6 +55,51 @@
   "Unconditionally turn on `magit-gitflow-mode'."
   (magit-gitflow-mode 1))
 
+(easy-menu-define magit-gitflow-extension-menu nil
+  "GitFlow extension menu"
+  '("GitFlow" :visible magit-gitflow-mode
+
+    ("Initialization/setup"
+     ["Initialize defaults" magit-gitflow-init
+      :help "Initialize GitFlow in the current repository"]
+     ["Set feature prefix" magit-gitflow-init-feature]
+     ["Set release prefix" magit-gitflow-init-release]
+     ["Set hotfix prefix" magit-gitflow-init-hotfix]
+     ["Set support prefix" magit-gitflow-init-support]
+     ["Set versiontag prefix" magit-gitflow-init-versiontag])
+
+    ("Feature"
+     ["Start" magit-key-mode-popup-gitflow-feature-start]
+     ["Finish" magit-key-mode-popup-gitflow-feature-finish]
+     ["Publish" magit-gitflow-feature-publish]
+     ["Delete" magit-key-mode-popup-gitflow-feature-delete]
+     ["Track" magit-gitflow-feature-track]
+     ["Diff" magit-gitflow-feature-diff]
+     ["Pull" magit-gitflow-feature-pull]
+     ["Rebase" magit-key-mode-popup-gitflow-feature-rebase])
+
+    ("Release"
+     ["Start" magit-key-mode-popup-gitflow-release-start]
+     ["Finish" magit-key-mode-popup-gitflow-release-finish]
+     ["Publish" magit-gitflow-release-publish]
+     ["Delete" magit-key-mode-popup-gitflow-release-delete]
+     ["Track" magit-gitflow-release-track])
+
+    ("Hotfix"
+     ["Start" magit-key-mode-popup-gitflow-hotfix-start]
+     ["Finish" magit-key-mode-popup-gitflow-hotfix-finish]
+     ["Publish" magit-gitflow-hotfix-publish]
+     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])
+
+    ["Support" magit-key-mode-popup-gitflow-support-start]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions")
+                    magit-gitflow-extension-menu)
+
+
+;;;
+;;; Utilities
+;;;
 
 (defun magit-run-gitflow (&rest args)
   "Execute 'git flow' with given ARGS."
@@ -65,7 +110,6 @@
   "Create defun to execute 'git flow CMD' commands.
 
 The new function will be called magit-run-gitflow-CMD."
-
   (let ((defun-name (intern (format "magit-run-gitflow-%s" cmd)))
         (version-prompt (format "%s name: " (upcase-initials cmd)))
         (config-key (format "gitflow.prefix.%s" cmd)))
@@ -167,11 +211,11 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 (defun magit-gitflow-release-finish ()
   (interactive)
   (let* ((prefix (magit-get "gitflow.prefix.release"))
-        (current-branch (magit-get-current-branch))
-        (current-release (if (string-prefix-p prefix current-branch)
-                             (substring current-branch (length prefix))
-                           ""))
-        (args (append '("release" "finish") magit-custom-options (list (read-string "Release name: " current-release)))))
+         (current-branch (magit-get-current-branch))
+         (current-release (if (string-prefix-p prefix current-branch)
+                              (substring current-branch (length prefix))
+                            ""))
+         (args (append '("release" "finish") magit-custom-options (list (read-string "Release name: " current-release)))))
     (magit-commit-internal "flow" args)))
 
 (define-magit-gitflow-branch-cmd "release" "publish")
@@ -187,8 +231,8 @@ The new function will be called magit-gitflow-BRANCH-CMD."
   (let* ((prefix (magit-get "gitflow.prefix.hotfix"))
          (current-branch (magit-get-current-branch))
          (current-hotfix (if (string-prefix-p prefix current-branch)
-                              (substring current-branch (length prefix))
-                            ""))
+                             (substring current-branch (length prefix))
+                           ""))
          (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Hotfix name: " current-hotfix)))))
     (magit-commit-internal "flow" args)))
 
@@ -210,6 +254,11 @@ The new function will be called magit-gitflow-BRANCH-CMD."
      (magit-key-mode-add-group ,group)
      ,@body
      (magit-key-mode-generate ,group)))
+
+
+;;;
+;;; Commands
+;;;
 
 (progn
   ;;
@@ -349,47 +398,6 @@ The new function will be called magit-gitflow-BRANCH-CMD."
     (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)
     (insert-action "h" "Hotfix" 'magit-key-mode-popup-gitflow-hotfix)
     (insert-action "s" "Support" 'magit-key-mode-popup-gitflow-support-start)))
-
-(easy-menu-define magit-gitflow-extension-menu nil
-  "Gitflow extension menu"
-  '("GitFlow" :visible magit-gitflow-mode
-
-    ("Initialization/setup"
-     ["Initialize defaults" magit-gitflow-init
-      :help "Initialize GitFlow in the current repository"]
-     ["Set feature prefix" magit-gitflow-init-feature]
-     ["Set release prefix" magit-gitflow-init-release]
-     ["Set hotfix prefix" magit-gitflow-init-hotfix]
-     ["Set support prefix" magit-gitflow-init-support]
-     ["Set versiontag prefix" magit-gitflow-init-versiontag])
-
-    ("Feature"
-     ["Start" magit-key-mode-popup-gitflow-feature-start]
-     ["Finish" magit-key-mode-popup-gitflow-feature-finish]
-     ["Publish" magit-gitflow-feature-publish]
-     ["Delete" magit-key-mode-popup-gitflow-feature-delete]
-     ["Track" magit-gitflow-feature-track]
-     ["Diff" magit-gitflow-feature-diff]
-     ["Pull" magit-gitflow-feature-pull]
-     ["Rebase" magit-key-mode-popup-gitflow-feature-rebase])
-
-    ("Release"
-     ["Start" magit-key-mode-popup-gitflow-release-start]
-     ["Finish" magit-key-mode-popup-gitflow-release-finish]
-     ["Publish" magit-gitflow-release-publish]
-     ["Delete" magit-key-mode-popup-gitflow-release-delete]
-     ["Track" magit-gitflow-release-track])
-
-    ("Hotfix"
-     ["Start" magit-key-mode-popup-gitflow-hotfix-start]
-     ["Finish" magit-key-mode-popup-gitflow-hotfix-finish]
-     ["Publish" magit-gitflow-hotfix-publish]
-     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])
-
-    ["Support" magit-key-mode-popup-gitflow-support-start]))
-
-(easy-menu-add-item 'magit-mode-menu '("Extensions")
-                    magit-gitflow-extension-menu)
 
 
 (provide 'magit-gitflow)
