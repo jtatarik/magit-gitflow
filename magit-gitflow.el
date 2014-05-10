@@ -3,7 +3,6 @@
 ;; Copyright (C) 2014  Jan Tatarik
 
 ;; Author: Jan Tatarik <Jan.Tatarik@gmail.com>
-;; Keywords: vc tools
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,7 +17,14 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;; Keywords: vc tools
+;; Package: magit-gitflow
+;; Package-Requires: ((emacs "24")(magit "1.3.0"))
+
+
 ;;; Commentary:
+
+;; Gitflow plugin for Magit.
 
 ;; (require 'magit-gitflow)
 ;; (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
