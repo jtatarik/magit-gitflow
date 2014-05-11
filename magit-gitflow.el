@@ -35,10 +35,10 @@
 ;;; Code:
 
 (require 'magit)
-(require 'cl-macs)
+(eval-when-compile
+  (require 'cl)
 
-(eval-and-compile
-  ;; Added in Emacs 24
+  ;; cl-flet added in Emacs 24
   (unless (fboundp 'cl-flet)
     (defalias 'cl-flet 'flet)))
 
