@@ -252,13 +252,15 @@ The new function will be called magit-gitflow-BRANCH-CMD."
                      (magit-read-rev "Base")))
 
 (defmacro with-key-mode-group (group &rest body)
-  `(cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,group args))
-             (insert-switch (&rest args) (apply #'magit-key-mode-insert-switch ,group args))
-             (insert-argument (&rest args) (apply #'magit-key-mode-insert-argument ,group args)))
+  (let ((groupname (make-symbol "groupname")))
+    `(let ((,groupname ,group))
+       (cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,groupname args))
+                 (insert-switch (&rest args) (apply #'magit-key-mode-insert-switch ,groupname args))
+                 (insert-argument (&rest args) (apply #'magit-key-mode-insert-argument ,groupname args)))
 
-     (magit-key-mode-add-group ,group)
-     ,@body
-     (magit-key-mode-generate ,group)))
+         (magit-key-mode-add-group ,groupname)
+         ,@body
+         (magit-key-mode-generate ,groupname)))))
 
 
 ;;;
