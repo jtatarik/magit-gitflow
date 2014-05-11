@@ -19,7 +19,7 @@
 
 ;; Keywords: vc tools
 ;; Package: magit-gitflow
-;; Package-Requires: ((emacs "24")(magit "1.3.0"))
+;; Package-Requires: ((magit "1.3.0"))
 
 
 ;;; Commentary:
@@ -36,6 +36,11 @@
 
 (require 'magit)
 (require 'cl-macs)
+
+(eval-and-compile
+  ;; Added in Emacs 24
+  (unless (fboundp 'cl-flet)
+    (defalias 'cl-flet 'flet)))
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
