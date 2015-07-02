@@ -1,7 +1,7 @@
 magit-gitflow
 =============
 
-[GitFlow][gitflow] plugin for magit.el
+[GitFlow][gitflow] plugin for [magit.el][magit]
 
 
 Setup
