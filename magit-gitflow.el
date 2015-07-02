@@ -1,12 +1,12 @@
 ;;; magit-gitflow.el --- gitflow extension for magit           -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014  Jan Tatarik
+;; Copyright (C) 2014, 2015  Jan Tatarik
 
 ;; Author: Jan Tatarik <Jan.Tatarik@gmail.com>
 ;; Keywords: vc tools
 ;; URL: https://github.com/jtatarik/magit-gitflow
 ;; Package: magit-gitflow
-;; Package-Requires: ((magit "1.3.0"))
+;; Package-Requires: ((magit "2.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,18 +34,12 @@
 ;;; Code:
 
 (require 'magit)
-(eval-when-compile
-  (require 'cl)
-
-  ;; cl-flet added in Emacs 24
-  (unless (fboundp 'cl-flet)
-    (defalias 'cl-flet 'flet)))
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
 (defvar magit-gitflow-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-f") 'magit-key-mode-popup-gitflow)
+    (define-key map (kbd "C-f") 'magit-gitflow-popup)
     map))
 
 (define-minor-mode magit-gitflow-mode
@@ -73,37 +67,203 @@
      ["Set versiontag prefix" magit-gitflow-init-versiontag])
 
     ("Feature"
-     ["Start" magit-key-mode-popup-gitflow-feature-start]
-     ["Finish" magit-key-mode-popup-gitflow-feature-finish]
+     ["Start" magit-gitflow-feature-start-popup]
+     ["Finish" magit-gitflow-feature-finish-popup]
      ["Publish" magit-gitflow-feature-publish]
-     ["Delete" magit-key-mode-popup-gitflow-feature-delete]
+     ["Delete" magit-gitflow-feature-delete-popup]
      ["Track" magit-gitflow-feature-track]
      ["Diff" magit-gitflow-feature-diff]
      ["Pull" magit-gitflow-feature-pull]
-     ["Rebase" magit-key-mode-popup-gitflow-feature-rebase])
+     ["Rebase" magit-gitflow-feature-rebase-popup])
 
     ("Release"
-     ["Start" magit-key-mode-popup-gitflow-release-start]
-     ["Finish" magit-key-mode-popup-gitflow-release-finish]
+     ["Start" magit-gitflow-release-start-popup]
+     ["Finish" magit-gitflow-release-finish-popup]
      ["Publish" magit-gitflow-release-publish]
-     ["Delete" magit-key-mode-popup-gitflow-release-delete]
+     ["Delete" magit-gitflow-release-delete-popup]
      ["Track" magit-gitflow-release-track])
 
     ("Hotfix"
-     ["Start" magit-key-mode-popup-gitflow-hotfix-start]
-     ["Finish" magit-key-mode-popup-gitflow-hotfix-finish]
+     ["Start" magit-gitflow-hotfix-start-popup]
+     ["Finish" magit-gitflow-hotfix-finish-popup]
      ["Publish" magit-gitflow-hotfix-publish]
-     ["Delete" magit-key-mode-popup-gitflow-hotfix-delete])
+     ["Delete" magit-gitflow-hotfix-delete-popup])
 
-    ["Support" magit-key-mode-popup-gitflow-support-start]))
+    ["Support" magit-gitflow-support-start-popup]))
+
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
 
+;;; Commands
 
-;;;
+(magit-define-popup magit-gitflow-popup
+  "Popup console for GitFlow commands."
+  'magit-popups
+  :actions '((?i "Init"     magit-gitflow-init-popup)
+             (?f "Feature"  magit-gitflow-feature-popup)
+             (?r "Release"  magit-gitflow-release-popup)
+             (?h "Hotfix"   magit-gitflow-hotfix-popup)
+             (?s "Support"  magit-gitflow-support-start-popup)))
+
+;;
+;; git flow INIT
+;;
+
+(magit-define-popup magit-gitflow-init-popup
+  "Popup console for GitFlow 'init' command."
+  'magit-gitflow-popup
+  :actions '((?i "Initialize defaults" magit-gitflow-init)
+             (?f "Feature prefix" magit-gitflow-init-feature)
+             (?r "Release prefix"      magit-gitflow-init-release)
+             (?h "Hotfix prefix"       magit-gitflow-init-hotfix)
+             (?s "Support prefix"      magit-gitflow-init-support)
+             (?v "Version tag prefix"  magit-gitflow-init-versiontag))
+  :switches '((?f "Force reinitialization" "--force")))
+
+;;
+;; git flow FEATURE
+;;
+
+(magit-define-popup magit-gitflow-feature-popup
+  "Popup console for GitFlow 'feature' command."
+  'magit-gitflow-popup
+  :actions '((?s "Start"    magit-gitflow-feature-start-popup)
+             (?f "Finish"   magit-gitflow-feature-finish-popup)
+             (?p "Publish"  magit-gitflow-feature-publish)
+             (?d "Delete"   magit-gitflow-feature-delete-popup)
+             (?t "Track"    magit-gitflow-feature-track)
+             (?D "Diff"     magit-gitflow-feature-diff)
+             (?P "Pull"     magit-gitflow-feature-pull)
+             (?r "Rebase"   magit-gitflow-feature-rebase-popup)))
+
+(magit-define-popup magit-gitflow-feature-start-popup
+  "Popup console for GitFlow 'feature start' command."
+  'magit-gitflow-feature-popup
+  :actions '((?s "Start" magit-gitflow-feature-start))
+  :switches '((?F "Fetch" "--fetch")))
+
+(magit-define-popup magit-gitflow-feature-finish-popup
+  "Popup console for GitFlow 'feature finish' command."
+  'magit-gitflow-feature-popup
+  :actions '((?f   "Finish" magit-gitflow-feature-finish))
+  :switches '((?F   "Fetch"               "--fetch")
+              (?r   "Rebase"              "--rebase")
+              (?p   "Preserve merges"     "--preserve-merges")
+              (?k   "Keep branch"         "--keep")
+              (?R   "Keep remote branch"  "--keepremote")
+              (?L   "Keep local branch"   "--keeplocal")
+              (?D   "Force delete branch" "--force_delete")
+              (?s   "Squash"              "--squash")
+              (?n   "No fast-forward"     "--no-ff")))
+
+(magit-define-popup magit-gitflow-feature-delete-popup
+  "Popup console for GitFlow 'feature delete' command."
+  'magit-gitflow-feature-popup
+  :actions '((?d "Delete" magit-gitflow-feature-delete))
+  :switches '((?f "Force"         "--force")
+              (?r "Delete remote" "--remote")))
+
+
+(magit-define-popup magit-gitflow-feature-rebase-popup
+  "Popup console for GitFlow 'feature rebase' command."
+  'magit-gitflow-feature-popup
+  :actions '((?r "Rebase" magit-gitflow-feature-rebase))
+  :switches '((?i "Interactive"     "--interactive")
+              (?p "Preserve merges" "--preserve-merges")))
+
+
+;;
+;; git flow RELEASE
+;;
+
+(magit-define-popup magit-gitflow-release-popup
+  "Popup console for GitFlow 'release' command."
+  'magit-gitflow-popup
+  :actions '((?s "Start"    magit-gitflow-release-start)
+             (?f "Finish"   magit-gitflow-release-finish-popup)
+             (?p "Publish"  magit-gitflow-release-publish)
+             (?d "Delete"   magit-gitflow-release-delete-popup)
+             (?t "Track"    magit-gitflow-release-track)))
+
+(magit-define-popup magit-gitflow-release-start-popup
+  "Popup console for GitFlow 'release start' command."
+  'magit-gitflow-release-popup
+  :actions '((?s "Start" magit-gitflow-release-start))
+  :switches '((?F "Fetch" "--fetch")))
+
+(magit-define-popup magit-gitflow-release-finish-popup
+  "Popup console for GitFlow 'release finish' command."
+  'magit-gitflow-release-popup
+  :actions '((?f "Finish" magit-gitflow-release-finish))
+  :options '((?u "Signing key"      "--signingkey="   read-file-name)
+             (?m "Tag message"      "--message="      read-string)
+             (?f "Tag message file" "--messagefile="  read-file-name))
+  :switches '((?F "Fetch before finish"     "--fetch")
+              (?s "Sign"                    "--sign")
+              (?p "Push after finish"       "--push")
+              (?k "Keep branch"             "--keep")
+              (?R "Keep remote branch"      "--keepremote")
+              (?L "Keep local branch"       "--keeplocal")
+              (?D "Force delete branch"     "--force_delete")
+              (?n "Don't tag"               "--tag")
+              (?b "Don't back-merge master" "--nobackmerge")
+              (?S "Squash"                  "--squash")))
+
+(magit-define-popup magit-gitflow-release-delete-popup
+  "Popup console for GitFlow 'release delete' command."
+  'magit-gitflow-release-popup
+  :actions '((?d "Delete" magit-gitflow-release-delete))
+  :switches '((?f "Force"                "--force")
+              (?r "Delete remote branch" "--remote")))
+
+;;
+;; git flow HOTFIX
+;;
+
+(magit-define-popup magit-gitflow-hotfix-popup
+  "Popup console for GitFlow 'hotfix' command."
+  'magit-gitflow-popup
+  :actions '((?s "Start"    magit-gitflow-hotfix-start-popup)
+             (?f "Finish"   magit-gitflow-hotfix-finish-popup)
+             (?p "Publish"  magit-gitflow-hotfix-publish)
+             (?d "Delete"   magit-gitflow-hotfix-delete-popup)))
+
+(magit-define-popup magit-gitflow-hotfix-start-popup
+  "Popup console for GitFlow 'hotfix start' command."
+  'magit-gitflow-hotfix-popup
+  :actions '((?s "Start"  magit-gitflow-hotfix-start))
+  :switches '((?F "Fetch" "--fetch")))
+
+(magit-define-popup magit-gitflow-hotfix-finish-popup
+  "Popup console for GitFlow 'hotfix finish' command."
+  'magit-gitflow-hotfix-popup
+  :actions '((?f "Finish" magit-gitflow-hotfix-finish))
+  :options '((?u "Signing key"      "--signingkey="   read-file-name)
+             (?m "Tag message"      "--message="      read-string)
+             (?f "Tag message file" "--messagefile="  read-file-name))
+  :switches '((?F "Fetch before finish"     "--fetch")
+              (?s "Sign"                    "--sign")
+              (?p "Push after finish"       "--push")
+              (?k "Keep branch"             "--keep")
+              (?R "Keep remote branch"      "--keepremote")
+              (?L "Keep local branch"       "--keeplocal")
+              (?D "Force delete branch"     "--force_delete")
+              (?n "Don't tag"               "--tag")
+              (?b "Don't back-merge master" "--nobackmerge")))
+
+;;
+;; git flow SUPPORT
+;;
+
+(magit-define-popup magit-gitflow-support-start-popup
+  "Popup console for GitFlow 'support start' command."
+  'magit-gitflow-popup
+  :actions '((?s "Start"    magit-gitflow-support-start))
+  :switches '((?F "Fetch" "--fetch")))
+
+
 ;;; Utilities
-;;;
 
 (defun magit-run-gitflow (&rest args)
   "Execute 'git flow' with given ARGS."
@@ -111,7 +271,7 @@
 
 
 (defmacro define-magit-gitflow-cmd (cmd)
-  "Create defun to execute 'git flow CMD' commands.
+  "Define function that executes 'git flow CMD' commands.
 
 The new function will be called magit-run-gitflow-CMD."
   (let ((defun-name (intern (format "magit-run-gitflow-%s" cmd)))
@@ -126,7 +286,7 @@ The new function will be called magit-run-gitflow-CMD."
                                  "")))
 
          (magit-run-gitflow ,cmd args
-                            magit-custom-options
+                            magit-current-popup-args
                             (read-string ,version-prompt current-feature))))))
 
 (define-magit-gitflow-cmd "feature")
@@ -135,7 +295,7 @@ The new function will be called magit-run-gitflow-CMD."
 
 
 (defmacro define-magit-gitflow-branch-cmd (branch cmd)
-  "Create defun to execute 'git flow BRANCH CMD' commands.
+  "Define function that executes 'git flow BRANCH CMD' commands.
 
 The new function will be called magit-gitflow-BRANCH-CMD."
 
@@ -149,7 +309,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-init ()
   (interactive)
-  (magit-run-gitflow "init" "-d" magit-custom-options))
+  (magit-run-gitflow "init" "-d" magit-current-popup-args))
 
 (defun magit-gitflow-init-prefix (key prompt)
   (let* ((config-key (format "gitflow.prefix.%s" key))
@@ -181,7 +341,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-feature-start (name)
   (interactive "sFeature name: ")
-  (magit-run-gitflow "feature" "start"  magit-custom-options name))
+  (magit-run-gitflow "feature" "start"  magit-current-popup-args name))
 
 (define-magit-gitflow-branch-cmd "feature" "finish")
 (define-magit-gitflow-branch-cmd "feature" "publish")
@@ -200,7 +360,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-feature-pull ()
   (interactive)
-  (let ((remote (magit-read-remote "Remote" nil t)))
+  (let ((remote (magit-read-remote "Remote" nil)))
     (magit-run-gitflow "feature" "pull"
                        remote
                        (magit-read-remote-branch "Feature" remote))))
@@ -210,17 +370,17 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-release-start (version)
   (interactive "sRelease name: ")
-  (magit-run-gitflow "release" "start" magit-custom-options version))
+  (magit-run-gitflow "release" "start" magit-current-popup-args version))
 
 (defun magit-gitflow-release-finish ()
   (interactive)
   (let* ((prefix (magit-get "gitflow.prefix.release"))
-         (current-branch (magit-get-current-branch))
-         (current-release (if (string-prefix-p prefix current-branch)
-                              (substring current-branch (length prefix))
-                            ""))
-         (args (append '("release" "finish") magit-custom-options (list (read-string "Release name: " current-release)))))
-    (magit-commit-internal "flow" args)))
+        (current-branch (magit-get-current-branch))
+        (current-release (if (string-prefix-p prefix current-branch)
+                             (substring current-branch (length prefix))
+                           ""))
+        (args (append '("release" "finish") magit-current-popup-args (list (read-string "Release name: " current-release)))))
+    (magit-run-git-with-editor "flow" args)))
 
 (define-magit-gitflow-branch-cmd "release" "publish")
 (define-magit-gitflow-branch-cmd "release" "delete")
@@ -228,17 +388,17 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-hotfix-start (version)
   (interactive "sHotfix name: ")
-  (magit-run-gitflow "hotfix" "start" magit-custom-options version))
+  (magit-run-gitflow "hotfix" "start" magit-current-popup-args version))
 
 (defun magit-gitflow-hotfix-finish ()
   (interactive)
   (let* ((prefix (magit-get "gitflow.prefix.hotfix"))
          (current-branch (magit-get-current-branch))
          (current-hotfix (if (string-prefix-p prefix current-branch)
-                             (substring current-branch (length prefix))
-                           ""))
-         (args (append '("hotfix" "finish") magit-custom-options (list (read-string "Hotfix name: " current-hotfix)))))
-    (magit-commit-internal "flow" args)))
+                              (substring current-branch (length prefix))
+                            ""))
+         (args (append '("hotfix" "finish") magit-current-popup-args (list (read-string "Hotfix name: " current-hotfix)))))
+    (magit-run-git-with-editor "flow" args)))
 
 (define-magit-gitflow-branch-cmd "hotfix" "publish")
 (define-magit-gitflow-branch-cmd "hotfix" "delete")
@@ -246,165 +406,9 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (defun magit-gitflow-support-start ()
   (interactive)
-  (magit-run-gitflow "support" "start" magit-custom-options
+  (magit-run-gitflow "support" "start" magit-current-popup-args
                      (read-string "Support branch name: ")
                      (magit-read-rev "Base")))
-
-(defmacro with-key-mode-group (group &rest body)
-  (let ((groupname (make-symbol "groupname")))
-    `(let ((,groupname ,group))
-       (cl-flet ((insert-action (&rest args) (apply #'magit-key-mode-insert-action ,groupname args))
-                 (insert-switch (&rest args) (apply #'magit-key-mode-insert-switch ,groupname args))
-                 (insert-argument (&rest args) (apply #'magit-key-mode-insert-argument ,groupname args)))
-
-         (magit-key-mode-add-group ,groupname)
-         ,@body
-         (magit-key-mode-generate ,groupname)))))
-
-
-;;;
-;;; Commands
-;;;
-
-(progn
-  ;;
-  ;; git flow INIT
-  ;;
-  (with-key-mode-group 'gitflow-init
-   (insert-action "i" "Initialize defaults" 'magit-gitflow-init)
-   (insert-action "f" "Feature prefix" 'magit-gitflow-init-feature)
-   (insert-action "r" "Release prefix" 'magit-gitflow-init-release)
-   (insert-action "h" "Hotfix prefix" 'magit-gitflow-init-hotfix)
-   (insert-action "s" "Support prefix" 'magit-gitflow-init-support)
-   (insert-action "v" "Version tag prefix" 'magit-gitflow-init-versiontag)
-   (insert-switch "-f" "Force reinitialization" "--force"))
-
-  ;;
-  ;; git flow FEATURE
-  ;;
-  (with-key-mode-group 'gitflow-feature-start
-    (insert-action "s" "Start" 'magit-gitflow-feature-start)
-    (insert-switch "-F" "Fetch" "--fetch"))
-
-  (with-key-mode-group 'gitflow-feature-finish
-    (insert-action "f" "Finish" 'magit-gitflow-feature-finish)
-    (insert-switch "-F" "Fetch" "--fetch")
-    (insert-switch "-r" "Rebase" "--rebase")
-    (insert-switch "-p" "Preserve merges" "--preserve-merges")
-    (insert-switch "-k" "Keep branch" "--keep")
-    (insert-switch "-Kr" "Keep remote branch" "--keepremote")
-    (insert-switch "-Kl" "Keep local branch" "--keeplocal")
-    (insert-switch "-D" "Force delete branch" "--force_delete")
-    (insert-switch "-s" "Squash" "--squash")
-    (insert-switch "-n" "No fast-forward" "--no-ff"))
-
-  (with-key-mode-group 'gitflow-feature-delete
-    (insert-action "d" "Delete" 'magit-gitflow-feature-delete)
-    (insert-switch "-f" "Force" "--force")
-    (insert-switch "-r" "Delete remote" "--remote"))
-
-  (with-key-mode-group 'gitflow-feature-rebase
-    (insert-action "r" "Rebase" 'magit-gitflow-feature-rebase)
-    (insert-switch "-i" "Interactive" "--interactive")
-    (insert-switch "-p" "Preserve merges" "--preserve-merges"))
-
-  (with-key-mode-group 'gitflow-feature
-    (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-feature-start)
-    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-feature-finish)
-    (insert-action "p" "Publish" 'magit-gitflow-feature-publish)
-    (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-feature-delete)
-    (insert-action "t" "Track" 'magit-gitflow-feature-track)
-    (insert-action "D" "Diff" 'magit-gitflow-feature-diff)
-    (insert-action "P" "Pull" 'magit-gitflow-feature-pull)
-    (insert-action "r" "Rebase" 'magit-key-mode-popup-gitflow-feature-rebase))
-
-  ;;
-  ;; git flow RELEASE
-  ;;
-  (with-key-mode-group 'gitflow-release-start
-    (insert-action "s" "Start" 'magit-gitflow-release-start)
-    (insert-switch "-F" "Fetch" "--fetch"))
-
-  (with-key-mode-group 'gitflow-release-finish
-    (insert-action "f" "Finish" 'magit-gitflow-release-finish)
-    (insert-switch "-F" "Fetch before finish" "--fetch")
-    (insert-switch "-s" "Sign" "--sign")
-    (insert-argument "=u" "Signing key" "--signingkey=" 'read-file-name)
-    (insert-argument "=m" "Tag message" "--message=" 'read-string)
-    (insert-argument "=f" "Tag message file" "--messagefile=" 'read-file-name)
-    (insert-switch "-p" "Push after finish" "--push")
-    (insert-switch "-k" "Keep branch" "--keep")
-    (insert-switch "-Kr" "Keep remote branch" "--keepremote")
-    (insert-switch "-Kl" "Keep local branch" "--keeplocal")
-    (insert-switch "-D" "Force delete branch" "--force_delete")
-    (insert-switch "-n" "Don't tag" "--tag")
-    (insert-switch "-b" "Don't back-merge master" "--nobackmerge")
-    (insert-switch "-S" "Squash" "--squash"))
-
-  (with-key-mode-group 'gitflow-release-delete
-     (insert-action  "d" "Delete" 'magit-gitflow-release-delete)
-     (insert-switch  "-f" "Force" "--force")
-     (insert-switch  "-r" "Delete remote branch" "--remote"))
-
-  (with-key-mode-group 'gitflow-release
-    (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-release-start)
-    (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-release-finish)
-    (insert-action "p" "Publish" 'magit-gitflow-release-publish)
-    (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-release-delete)
-    (insert-action "t" "Track" 'magit-gitflow-release-track))
-
-
-  ;;
-  ;; git flow HOTFIX
-  ;;
-  (with-key-mode-group 'gitflow-hotfix-start
-                       (insert-action "s" "Start" 'magit-gitflow-hotfix-start)
-                       (insert-switch "-F" "Fetch" "--fetch"))
-
-  (with-key-mode-group 'gitflow-hotfix-finish
-                       (insert-action "f" "Finish" 'magit-gitflow-hotfix-finish)
-                       (insert-switch "-F" "Fetch before finish" "--fetch")
-                       (insert-switch "-s" "Sign" "--sign")
-                       (insert-argument "=u" "Signing key" "--signingkey=" 'read-file-name)
-                       (insert-argument "=m" "Tag message" "--message=" 'read-string)
-                       (insert-argument "=f" "Tag message file" "--messagefile=" 'read-file-name)
-                       (insert-switch "-p" "Push after finish" "--push")
-                       (insert-switch "-k" "Keep branch" "--keep")
-                       (insert-switch "-Kr" "Keep remote branch" "--keepremote")
-                       (insert-switch "-Kl" "Keep local branch" "--keeplocal")
-                       (insert-switch "-D" "Force delete branch" "--force_delete")
-                       (insert-switch "-n" "Don't tag" "--tag")
-                       (insert-switch "-b" "Don't back-merge master" "--nobackmerge"))
-
-  (with-key-mode-group 'gitflow-hotfix-delete
-                       (insert-action  "d" "Delete" 'magit-gitflow-hotfix-delete)
-                       (insert-switch  "-f" "Force" "--force")
-                       (insert-switch  "-r" "Delete remote branch" "--remote"))
-
-  (with-key-mode-group 'gitflow-hotfix
-                       (insert-action "s" "Start" 'magit-key-mode-popup-gitflow-hotfix-start)
-                       (insert-action "f" "Finish" 'magit-key-mode-popup-gitflow-hotfix-finish)
-                       (insert-action "p" "Publish" 'magit-gitflow-hotfix-publish)
-                       (insert-action "d" "Delete" 'magit-key-mode-popup-gitflow-hotfix-delete))
-
-
-  ;;
-  ;; git flow SUPPORT
-  ;;
-  (with-key-mode-group 'gitflow-support-start
-                       (insert-action "s" "Start" 'magit-gitflow-support-start)
-                       (insert-switch "-F" "Fetch" "--fetch"))
-
-  ;;
-  ;; git flow
-  ;;
-  (with-key-mode-group 'gitflow
-    (insert-action "i" "Init" 'magit-key-mode-popup-gitflow-init)
-    (insert-action "f" "Feature" 'magit-key-mode-popup-gitflow-feature)
-    (insert-action "r" "Release" 'magit-key-mode-popup-gitflow-release)
-    (insert-action "h" "Hotfix" 'magit-key-mode-popup-gitflow-hotfix)
-    (insert-action "s" "Support" 'magit-key-mode-popup-gitflow-support-start)))
-
 
 (provide 'magit-gitflow)
 ;;; magit-gitflow.el ends here
