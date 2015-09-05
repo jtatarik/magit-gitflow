@@ -35,6 +35,7 @@
 
 (require 'magit)
 (require 'magit-popup)
+(require 'magit-process)
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
@@ -409,7 +410,7 @@ The new function will be called magit-gitflow-BRANCH-CMD."
   (interactive)
   (magit-run-gitflow "support" "start" magit-current-popup-args
                      (read-string "Support branch name: ")
-                     (magit-read-rev "Base")))
+                     (magit-read-local-branch-or-ref "Base")))
 
 (provide 'magit-gitflow)
 ;;; magit-gitflow.el ends here
