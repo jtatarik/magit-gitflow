@@ -97,6 +97,7 @@
 (easy-menu-add-item 'magit-mode-menu '("Extensions")
                     magit-gitflow-extension-menu)
 
+
 ;;; Commands
 
 (magit-define-popup magit-gitflow-popup
@@ -265,6 +266,7 @@
   :switches '((?F "Fetch" "--fetch")))
 
 
+
 ;;; Utilities
 
 (defun magit-run-gitflow (&rest args)
