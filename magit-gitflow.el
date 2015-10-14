@@ -35,7 +35,6 @@
 
 (require 'magit)
 (require 'magit-popup)
-(require 'magit-process)
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
