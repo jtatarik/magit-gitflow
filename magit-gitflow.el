@@ -255,6 +255,14 @@
               (?n "Don't tag"               "--tag")
               (?b "Don't back-merge master" "--nobackmerge")))
 
+(magit-define-popup magit-gitflow-hotfix-delete-popup
+  "Popup console for GitFlow 'hotfix delete' command."
+  'magit-gitflow-hotfix-popup
+  :actions '((?d "Delete" magit-gitflow-hotfix-delete))
+  :switches '((?f "Force"                "--force")
+              (?r "Delete remote branch" "--remote")))
+
+
 ;;
 ;; git flow SUPPORT
 ;;
