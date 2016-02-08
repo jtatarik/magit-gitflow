@@ -36,6 +36,7 @@
 (require 'magit)
 (require 'magit-popup)
 (require 'magit-process)
+(require 'subr-x)
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
@@ -287,7 +288,7 @@
 
 The new function will be called magit-run-gitflow-CMD."
   (let ((defun-name (intern (format "magit-run-gitflow-%s" cmd)))
-        (version-prompt (format "%s name: " (upcase-initials cmd)))
+        (version-prompt (format "%s name" (upcase-initials cmd)))
         (config-key (format "gitflow.prefix.%s" cmd)))
 
     `(defun ,defun-name (args)
@@ -299,7 +300,13 @@ The new function will be called magit-run-gitflow-CMD."
 
          (magit-run-gitflow ,cmd args
                             magit-current-popup-args
-                            (read-string ,version-prompt current-feature))))))
+                            (string-remove-prefix
+                             prefix
+                             (magit-completing-read ,version-prompt
+                                                    (magit-list-refnames "refs/heads")
+                                                    (lambda (ref) (string-prefix-p prefix ref))
+                                                    t
+                                                    current-feature)))))))
 
 (define-magit-gitflow-cmd "feature")
 (define-magit-gitflow-cmd "release")
