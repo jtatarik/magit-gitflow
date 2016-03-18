@@ -1,6 +1,6 @@
 ;;; magit-gitflow.el --- gitflow extension for magit           -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014, 2015  Jan Tatarik
+;; Copyright (C) 2014, 2015, 2016  Jan Tatarik
 
 ;; Author: Jan Tatarik <Jan.Tatarik@gmail.com>
 ;; Keywords: vc tools
@@ -28,7 +28,7 @@
 ;; (require 'magit-gitflow)
 ;; (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
 ;;
-;; C-f in magit status buffer will invoke gitflow action selector.
+;; C-f in magit status buffer will invoke the gitflow popup.
 ;;
 
 ;;; Code:
@@ -40,9 +40,11 @@
 
 (defvar magit-gitflow-mode-lighter " GitFlow")
 
+(defvar magit-gitflow-popup-key "C-f")
+
 (defvar magit-gitflow-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-f") 'magit-gitflow-popup)
+    (define-key map (kbd magit-gitflow-popup-key) 'magit-gitflow-popup)
     map))
 
 (define-minor-mode magit-gitflow-mode
