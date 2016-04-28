@@ -54,6 +54,7 @@
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit")))
 
+;;;###autoload
 (defun turn-on-magit-gitflow ()
   "Unconditionally turn on `magit-gitflow-mode'."
   (magit-gitflow-mode 1))
