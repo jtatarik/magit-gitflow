@@ -287,7 +287,7 @@
 
 
 (defmacro define-magit-gitflow-cmd (cmd)
-  "Define function that executes 'git flow CMD' commands.
+  "Define function to execute 'git flow CMD' commands.
 
 The new function will be called magit-run-gitflow-CMD."
   (let ((defun-name (intern (format "magit-run-gitflow-%s" cmd)))
@@ -309,7 +309,7 @@ The new function will be called magit-run-gitflow-CMD."
                                                     (magit-list-refnames "refs/heads")
                                                     (lambda (ref) (string-prefix-p prefix ref))
                                                     t
-                                                    current-feature)))))))
+                                                    current-branch)))))))
 
 (define-magit-gitflow-cmd "feature")
 (define-magit-gitflow-cmd "release")
