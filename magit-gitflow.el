@@ -79,7 +79,6 @@
      ["Delete" magit-gitflow-feature-delete-popup]
      ["Track" magit-gitflow-feature-track]
      ["Diff" magit-gitflow-feature-diff]
-     ["Pull" magit-gitflow-feature-pull]
      ["Rebase" magit-gitflow-feature-rebase-popup])
 
     ("Release"
@@ -141,7 +140,6 @@
              (?d "Delete"   magit-gitflow-feature-delete-popup)
              (?t "Track"    magit-gitflow-feature-track)
              (?D "Diff"     magit-gitflow-feature-diff)
-             (?P "Pull"     magit-gitflow-feature-pull)
              (?r "Rebase"   magit-gitflow-feature-rebase-popup)))
 
 (magit-define-popup magit-gitflow-feature-start-popup
@@ -369,7 +367,6 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 (define-magit-gitflow-branch-cmd "feature" "publish")
 (define-magit-gitflow-branch-cmd "feature" "delete")
 (define-magit-gitflow-branch-cmd "feature" "rebase")
-(define-magit-gitflow-branch-cmd "feature" "track")
 
 (defun magit-gitflow-feature-diff ()
   (interactive)
@@ -380,14 +377,11 @@ The new function will be called magit-gitflow-BRANCH-CMD."
     (when (and (string-prefix-p prefix current-branch) base)
       (magit-diff base current-branch))))
 
-(defun magit-gitflow-feature-pull ()
+(defun magit-gitflow-feature-track ()
   (interactive)
-  (let ((remote (magit-read-remote "Remote" nil)))
-    (magit-run-gitflow "feature" "pull"
-                       remote
-                       (magit-read-remote-branch "Feature" remote))))
-
-
+  (let ((prefix (magit-get "gitflow.prefix.feature")))
+    (magit-run-gitflow "feature" "track"
+                       (string-remove-prefix prefix (magit-read-remote-branch "Feature" "origin")))))
 
 
 (defun magit-gitflow-release-start (version)
@@ -406,7 +400,12 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 
 (define-magit-gitflow-branch-cmd "release" "publish")
 (define-magit-gitflow-branch-cmd "release" "delete")
-(define-magit-gitflow-branch-cmd "release" "track")
+
+(defun magit-gitflow-release-track ()
+  (interactive)
+  (let ((prefix (magit-get "gitflow.prefix.release")))
+    (magit-run-gitflow "release" "track"
+                       (string-remove-prefix prefix (magit-read-remote-branch "Release" "origin")))))
 
 (defun magit-gitflow-hotfix-start (version)
   (interactive "sHotfix name: ")
