@@ -438,7 +438,15 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 (define-magit-gitflow-branch-cmd "feature" "finish")
 (define-magit-gitflow-branch-cmd "feature" "publish")
 (define-magit-gitflow-branch-cmd "feature" "delete")
-(define-magit-gitflow-branch-cmd "feature" "rebase")
+
+(defun magit-gitflow-feature-rebase ()
+  (interactive)
+  (let* ((prefix (magit-get "gitflow.prefix.feature"))
+         (current-branch (magit-get-current-branch))
+         (args (append '("feature" "rebase") magit-current-popup-args (list (string-remove-prefix prefix current-branch)))))
+
+    (when (string-prefix-p prefix current-branch)
+      (magit-run-git-with-editor "flow" args))))
 
 (defun magit-gitflow-feature-diff ()
   (interactive)
@@ -466,7 +474,15 @@ The new function will be called magit-gitflow-BRANCH-CMD."
 (define-magit-gitflow-branch-cmd "bugfix" "finish")
 (define-magit-gitflow-branch-cmd "bugfix" "publish")
 (define-magit-gitflow-branch-cmd "bugfix" "delete")
-(define-magit-gitflow-branch-cmd "bugfix" "rebase")
+
+(defun magit-gitflow-bugfix-rebase ()
+  (interactive)
+  (let* ((prefix (magit-get "gitflow.prefix.bugfix"))
+         (current-branch (magit-get-current-branch))
+         (args (append '("bugfix" "rebase") magit-current-popup-args (list (string-remove-prefix prefix current-branch)))))
+
+    (when (string-prefix-p prefix current-branch)
+      (magit-run-git-with-editor "flow" args))))
 
 (defun magit-gitflow-bugfix-diff ()
   (interactive)
