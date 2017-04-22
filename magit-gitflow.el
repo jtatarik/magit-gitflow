@@ -170,7 +170,7 @@
               (?R   "Keep remote branch"  "--keepremote")
               (?L   "Keep local branch"   "--keeplocal")
               (?D   "Force delete branch" "--force_delete")
-              (?s   "Squash"              "--squash")
+              (?S   "Squash"              "--squash")
               (?n   "No fast-forward"     "--no-ff")))
 
 (magit-define-popup magit-gitflow-feature-delete-popup
@@ -221,7 +221,7 @@
               (?R   "Keep remote branch"  "--keepremote")
               (?L   "Keep local branch"   "--keeplocal")
               (?D   "Force delete branch" "--force_delete")
-              (?s   "Squash"              "--squash")
+              (?S   "Squash"              "--squash")
               (?n   "No fast-forward"     "--no-ff")))
 
 (magit-define-popup magit-gitflow-bugfix-delete-popup
