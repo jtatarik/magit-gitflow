@@ -273,7 +273,7 @@
               (?R "Keep remote branch"      "--keepremote")
               (?L "Keep local branch"       "--keeplocal")
               (?D "Force delete branch"     "--force_delete")
-              (?n "Don't tag"               "--tag")
+              (?n "Don't tag"               "--notag")
               (?b "Don't back-merge master" "--nobackmerge")
               (?S "Squash"                  "--squash")))
 
@@ -316,7 +316,7 @@
               (?R "Keep remote branch"      "--keepremote")
               (?L "Keep local branch"       "--keeplocal")
               (?D "Force delete branch"     "--force_delete")
-              (?n "Don't tag"               "--tag")
+              (?n "Don't tag"               "--notag")
               (?b "Don't back-merge master" "--nobackmerge")))
 
 (magit-define-popup magit-gitflow-hotfix-delete-popup
